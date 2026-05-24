@@ -321,15 +321,15 @@ class MySelectEntity(CoordinatorEntity, SelectEntity, MyEntity):  # pylint: disa
             self._attr_current_option = "FEHLER"
 
     async def async_select_option(self, option: str) -> None:
-        """Write the selected option to modbus and refresh HA."""
+        """Write the selected option to the REST API and refresh HA."""
         ro = RestObject(self._rest_api, self._rest_item)
-        await ro.addvalue(option)  # rest_item.state will be set inside ro.setvalue
         if self._rest_item.type == TYPES.SELECT_NOIF:
+            await ro.addvalue(option)
             self._rest_item.state = self.options[0]
-            self._attr_current_option = self._rest_item.state
         else:
+            await ro.setvalue(option)
             self._rest_item.state = option
-            self._attr_current_option = self._rest_item.state
+        self._attr_current_option = self._rest_item.state
         self.async_write_ha_state()
 
     @callback

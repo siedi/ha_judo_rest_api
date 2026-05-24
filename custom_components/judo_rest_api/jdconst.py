@@ -99,6 +99,23 @@ SALT_MASS: list[StatusItem] = [
     StatusItem(number=25, translation_key="mass_25kg"),
     StatusItem(number=50, translation_key="mass_50kg"),
 ]
+
+HARDNESS_UNIT: list[StatusItem] = [
+    StatusItem(number=0, translation_key="unit_dh"),
+    StatusItem(number=1, translation_key="unit_eh"),
+    StatusItem(number=2, translation_key="unit_fh"),
+    StatusItem(number=3, translation_key="unit_gpg"),
+    StatusItem(number=4, translation_key="unit_ppm"),
+    StatusItem(number=5, translation_key="unit_mmol"),
+    StatusItem(number=6, translation_key="unit_mval"),
+]
+
+VACATION_MODE: list[StatusItem] = [
+    StatusItem(number=0, translation_key="vacation_off"),
+    StatusItem(number=3, translation_key="vacation_u1"),
+    StatusItem(number=5, translation_key="vacation_u2"),
+    StatusItem(number=9, translation_key="vacation_u3"),
+]
 #####################################################
 # Description of physical units via the status list #
 #####################################################
@@ -215,6 +232,41 @@ PARAMS_MASS_REFILL: dict = {
     "unit": UnitOfMass.KILOGRAMS,
     "stateclass": SensorStateClass.MEASUREMENT
 }
+
+PARAMS_EXTRACTION_DURATION: dict = {
+    "min": 0,
+    "max": 255,
+    "step": 1,
+    "unit": UnitOfTime.MINUTES,
+    "stateclass": None,
+    "icon": "mdi:timer-outline",
+}
+
+PARAMS_FLOW_RATE_LIMIT: dict = {
+    "min": 0,
+    "max": 65535,
+    "step": 1,
+    "unit": "L/h",
+    "stateclass": None,
+    "icon": "mdi:water-alert",
+}
+
+PARAMS_EXTRACTION_VOLUME: dict = {
+    "min": 0,
+    "max": 65535,
+    "step": 1,
+    "unit": UnitOfVolume.LITERS,
+    "stateclass": None,
+    "icon": "mdi:water-alert",
+}
+
+PARAMS_HARDNESS_UNIT: dict = {
+    "icon": "mdi:water-opacity",
+}
+
+PARAMS_VACATION: dict = {
+    "icon": "mdi:beach",
+}
 # pylint: disable=line-too-long
 
 # fmt: off
@@ -242,6 +294,12 @@ REST_SYS_ITEMS: list[RestItem] = [
     RestItem(address_write="3C00", write_bytes = 0, write_index=0, mformat=FORMATS.BUTTON, mtype=TYPES.BUTTON, device=DEVICES.SYS, params=PARAMS_CLOSE, translation_key="leakage_protection_close"),
     RestItem(address_write="3D00", write_bytes = 0, write_index=0, mformat=FORMATS.BUTTON, mtype=TYPES.BUTTON, device=DEVICES.SYS, params=PARAMS_OPEN, translation_key="leakage_protection_open"),
     RestItem(address_write="350000", write_bytes = 0, write_index=0, mformat=FORMATS.BUTTON, mtype=TYPES.BUTTON, device=DEVICES.SYS, params=PARAMS_REG, translation_key="start_regeneration"),
+
+    RestItem( address_read="2300", read_bytes = 1, read_index=0, address_write="2400", write_bytes = 1, write_index=0, mformat=FORMATS.STATUS, mtype=TYPES.SELECT, device=DEVICES.SYS, resultlist=HARDNESS_UNIT, params=PARAMS_HARDNESS_UNIT, translation_key="hardness_unit", entity_category=EntityCategory.CONFIG),
+    RestItem( address_read="3E00", read_bytes = 1, read_index=0, address_write="3E00", write_bytes = 1, write_index=0, mformat=FORMATS.NUMBER, mtype=TYPES.NUMBER, device=DEVICES.SYS, params=PARAMS_EXTRACTION_DURATION, translation_key="max_extraction_duration", entity_category=EntityCategory.CONFIG),
+    RestItem( address_read="3F00", read_bytes = 2, read_index=0, address_write="3F00", write_bytes = 2, write_index=0, mformat=FORMATS.NUMBER, mtype=TYPES.NUMBER, device=DEVICES.SYS, params=PARAMS_FLOW_RATE_LIMIT, translation_key="max_flow_rate", entity_category=EntityCategory.CONFIG),
+    RestItem( address_read="4000", read_bytes = 2, read_index=0, address_write="4000", write_bytes = 2, write_index=0, mformat=FORMATS.NUMBER, mtype=TYPES.NUMBER, device=DEVICES.SYS, params=PARAMS_EXTRACTION_VOLUME, translation_key="max_extraction_volume", entity_category=EntityCategory.CONFIG),
+    RestItem( address_read="4100", read_bytes = 1, read_index=0, address_write="4100", write_bytes = 1, write_index=0, mformat=FORMATS.STATUS, mtype=TYPES.SELECT, device=DEVICES.SYS, resultlist=VACATION_MODE, params=PARAMS_VACATION, translation_key="vacation_mode", entity_category=EntityCategory.CONFIG),
 
 #    RestItem(address_read="5600", read_bytes = 2, read_index=0,address_write="5600", write_bytes = 2, write_index=0, mformat=FORMATS.STATUS, mtype=TYPES.SELECT_NOIF, device=DEVICES.SYS, params= PARAMS_MASS_REFILL, resultlist=SALT_MASS, translation_key="salt_refill_mass"),
 ]
