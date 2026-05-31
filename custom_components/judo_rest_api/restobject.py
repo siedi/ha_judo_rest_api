@@ -107,8 +107,10 @@ class RestAPI:
         if towrite is None:
             return None
 
+        response = None
         try:
             url = self._api_url + command + towrite
+            log.debug("Send WRITE command %s value %s", command, towrite)
             response = await self._hass.async_add_executor_job(
                 partial(
                     requests.get,
@@ -117,10 +119,20 @@ class RestAPI:
                     timeout=2,
                 )
             )
+            log.debug("WRITE response %s", response.status_code)
             res = await self._hass.async_add_executor_job(response.json)
             return res["data"]
         except Exception:
-            log.warning("Connection to Judo Water Treatment failed")
+            if response is not None:
+                status = str(response.status_code)
+            else:
+                status = "unknown status"
+            log.warning(
+                "Judo REST API WRITE to %s (value %s) failed with %s",
+                command,
+                towrite,
+                status,
+            )
             return None
 
     async def connect(self):
@@ -250,6 +262,13 @@ class RestObject:
         if self._rest_api is None:
             return
 
+        log.debug(
+            "setvalue called for %s (write %s) value %s",
+            self._rest_item.translation_key,
+            self._rest_item.address_write,
+            str(value),
+        )
+
         if self._rest_item.type == TYPES.SENSOR:
             return
         if self._rest_item.format is FORMATS.BUTTON:
@@ -295,6 +314,13 @@ class RestObject:
         towrite = None
         if self._rest_api is None:
             return None
+
+        log.debug(
+            "addvalue called for %s (write %s) value %s",
+            self._rest_item.translation_key,
+            self._rest_item.address_write,
+            str(value),
+        )
 
         if self._rest_item.type == TYPES.SENSOR:
             return None
